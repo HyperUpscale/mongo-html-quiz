@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Create New Quiz</h1>
+    <form method="post" novalidate>
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.quiz_id.label }}<br>
+            {{ form.quiz_id(size=32) }}
+        </p>
+        <p>
+            {{ form.name.label }}<br>
+            {{ form.name(size=32) }}
+        </p>
+        <p>{{ form.submit() }}</p>
+    </form>
+{% endblock %}

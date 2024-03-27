@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>{{ quiz.name }} (ID: {{ quiz.quiz_id }})</h1>
+    <div class="gallery">
+        {% for image in images %}
+            <div class="gallery-item">
+                <img src="data:image/png;base64,{{ image.image_data }}" alt="Quiz Image" style="max-width: 25%; max-height: 25%;">
+                <p>Category: {{ image.category }}, Score: {{ image.score }}</p>
+            </div>
+        {% endfor %}
+    </div>
+    <h2>Upload New Image</h2>
+    <form method="post" enctype="multipart/form-data" novalidate>
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.image.label }}<br>
+            {{ form.image() }}
+        </p>
+        <p>
+            {{ form.category.label }}<br>
+            {{ form.category(size=32) }}
+        </p>
+        <p>
+            {{ form.score.label }}<br>
+            {{ form.score(size=32) }}
+        </p>
+        <p>{{ form.submit() }}</p>
+    </form>
+    <a href="{{ url_for('bulk_image_upload', quiz_id=quiz.quiz_id) }}">Bulk Image Upload</a>
+    <a href="{{ url_for('quiz_entry', quiz_id=quiz.quiz_id) }}">Start Quiz</a>
+{% endblock %}
+
+{% block styles %}
+<style>
+    .gallery {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .gallery-item {
+        margin: 10px;
+        text-align: center;
+    }
+
+    .gallery-item img {
+        max-width: 25%;
+        max-height: 25%;
+    }
+</style>
+{% endblock %}

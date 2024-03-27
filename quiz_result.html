@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+<h1>{{ quiz.name }} (ID: {{ quiz.quiz_id }})</h1>
+{% block content %}
+    <h1>{{ quiz.name }} Result</h1>
+    <p>Your Score: {{ current_score }}</p>
+    {% if image_data %}
+        <img src="data:image/png;base64,{{ image_data }}" alt="Result Image">
+        <p>{{ result_text }}</p>
+    {% else %}
+        <p>{{ result_text }}</p>
+    {% endif %}
+{% endblock %}

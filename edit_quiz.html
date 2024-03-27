@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Quiz</title>
+    <style>
+        /* Add your CSS styles here */
+    </style>
+</head>
+<body>
+    <h1>Edit Quiz</h1>
+
+    {% if quiz %}
+        <p style="text-align: right;"><strong>Current Quiz ID:</strong> {{ quiz.quiz_id }}</p>
+    {% else %}
+        <p style="text-align: right;"><strong>No quiz selected</strong></p>
+    {% endif %}
+
+    <form method="post" action="{{ url_for('edit_quiz', quiz_id=quiz.quiz_id) }}">
+        <label for="quiz_name">Quiz Name:</label>
+        <input type="text" id="quiz_name" name="quiz_name" value="{{ quiz.name }}" required>
+        <input type="submit" value="Update Quiz">
+    </form>
+
+    <h2>Upload Single Image</h2>
+    <form method="post" enctype="multipart/form-data" action="{{ url_for('upload_images', quiz_id=quiz.quiz_id) }}">
+        <input type="file" name="image" accept="image/*" required>
+        <label for="category">Category:</label>
+        <input type="text" name="category">
+        <label for="score">Score:</label>
+        <input type="number" name="score">
+        <input type="submit" value="Upload Image">
+    </form>
+
+    <h2>Bulk Upload Images for Quiz {{ quiz.quiz_id }}</h2>
+    <form method="post" enctype="multipart/form-data" action="{{ url_for('bulk_upload_images', quiz_id=quiz.quiz_id) }}">
+        <label for="score"><strong>Default Score for this batch:</strong></label>
+        <input type="number" name="score" required>
+        <input type="file" name="images" accept="image/*" multiple required>
+        <input type="submit" value="Bulk Upload Images">
+    </form>
+
+    <h2>Image Gallery</h2>
+    {% for image in gallery %}
+        <div style="display: inline-block; margin: 10px;">
+            <img src="data:image/png;base64,{{ image.image_data }}" width="100">
+            <p>Category: {{ image.category }}</p>
+            <p>Score: {{ image.score }}</p>
+            <a href="{{ url_for('delete_image', image_id=image._id, quiz_id=quiz.quiz_id) }}">Delete</a>
+            <a href="{{ url_for('update_image', image_id=image._id, quiz_id=quiz.quiz_id) }}">Edit</a>
+        </div>
+    {% endfor %}
+
+    <h2>Result Image Gallery</h2>
+    {% for result_image in result_gallery %}
+        <div style="display: inline-block; margin: 10px;">
+            <img src="data:image/png;base64,{{ result_image.image_data }}" width="100">
+            <p>Score Range: {{ result_image.score_start }} - {{ result_image.score_end }}</p>
+            <p>Result Text: {{ result_image.result_text }}</p>
+        </div>
+    {% endfor %}
+</body>
+</html>

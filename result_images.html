@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+<h1>{{ quiz.name }} (ID: {{ quiz.quiz_id }})</h1>
+{% block content %}
+    <h1>{{ quiz.name }} Result Images</h1>
+    <ul>
+        {% for result_image in result_images %}
+            <li>
+                <img src="data:image/png;base64,{{ result_image.image_data }}" alt="Result Image">
+                Category: {{ result_image.category }}, Score Range: {{ result_image.score_range }}, Result Text: {{ result_image.result_text }}
+            </li>
+        {% endfor %}
+    </ul>
+    <a href="{{ url_for('result_image_upload', quiz_id=quiz.quiz_id) }}">Upload New Result Image</a>
+{% endblock %}

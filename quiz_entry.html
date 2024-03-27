@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>{{ quiz.name }} (ID: {{ quiz.quiz_id }}) Quiz Entry</h1>
+    <p>Current Score: {{ current_score }}</p>
+    <div class="quiz-images">
+        {% for image in images %}
+            <div class="quiz-image">
+                <a href="{{ url_for('quiz_entry', quiz_id=quiz.quiz_id, page=page, image_id=image._id) }}">
+                    <img src="data:image/png;base64,{{ image.image_data }}" alt="Quiz Image" style="max-width: 200px; max-height: 200px;">
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+    <button type="submit">Next</button>
+{% endblock %}
+
+{% block styles %}
+<style>
+    .quiz-images {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .quiz-image {
+        margin: 10px;
+    }
+
+    .quiz-image img {
+        max-width: 200px;
+        max-height: 200px;
+    }
+</style>
+{% endblock %}

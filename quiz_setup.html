@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Quiz Setup: {{ quiz.name }} (ID: {{ quiz.quiz_id }})</h1>
+    <ul>
+        <li><a href="{{ url_for('quiz_images', quiz_id=quiz.quiz_id) }}">Upload Images</a></li>
+        <li><a href="{{ url_for('result_image_upload', quiz_id=quiz.quiz_id) }}">Upload Result Images</a></li>
+        <li><a href="{{ url_for('result_images', quiz_id=quiz.quiz_id) }}">View Result Images Gallery</a></li>
+    </ul>
+    <a href="{{ url_for('quiz_entry', quiz_id=quiz.quiz_id) }}">Start Quiz</a>
+{% endblock %}

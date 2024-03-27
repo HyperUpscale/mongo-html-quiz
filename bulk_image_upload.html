@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Bulk Image Upload for {{ quiz.name }}</h1>
+    <form method="post" enctype="multipart/form-data" novalidate>
+        <p>
+            <input type="file" name="images" multiple>
+        </p>
+        <p>
+            <label for="default_score">Default Score:</label>
+            <input type="number" name="default_score" id="default_score" value="0">
+        </p>
+        <p>
+            <button type="submit">Upload Images</button>
+        </p>
+    </form>
+{% endblock %}

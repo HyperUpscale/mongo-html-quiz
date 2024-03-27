@@ -1,0 +1,388 @@
+base.html
+:
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <title>Quiz App</title>
+    <style>
+        /* Add some basic styling for demonstration purposes */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        nav {
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px;
+        }
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            margin-right: 10px;
+        }
+        .flash {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        .flash.success {
+            background-color: #28a745;
+            color: #fff;
+            border: 1px solid #218838;
+        }
+        .flash.error {
+            background-color: #dc3545;
+            color: #fff;
+            border: 1px solid #c82333;
+        }
+        /* Gallery styles */
+    .gallery {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .gallery-item {
+        margin: 10px;
+        text-align: center;
+    }
+
+    .gallery-item img {
+        max-width: 50%;
+        max-height: 50%;
+    }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="{{ url_for('index') }}">Home</a>
+        <a href="{{ url_for('create_quiz') }}">Create Quiz</a>
+
+    </nav>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="flash {{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+</body>
+</html>
+
+
+bulk_image_upload.html
+:
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Bulk Image Upload for {{ quiz.name }}</h1>
+    <form method="post" enctype="multipart/form-data" novalidate>
+        <p>
+            <input type="file" name="images" multiple>
+        </p>
+        <p>
+            <label for="default_score">Default Score:</label>
+            <input type="number" name="default_score" id="default_score" value="0">
+        </p>
+        <p>
+            <button type="submit">Upload Images</button>
+        </p>
+    </form>
+{% endblock %}
+
+
+create_quiz.html
+:
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Create New Quiz</h1>
+    <form method="post" novalidate>
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.quiz_id.label }}<br>
+            {{ form.quiz_id(size=32) }}
+        </p>
+        <p>
+            {{ form.name.label }}<br>
+            {{ form.name(size=32) }}
+        </p>
+        <p>{{ form.submit() }}</p>
+    </form>
+{% endblock %}
+
+
+delete_quiz.html
+:
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Delete Quiz</h1>
+    <p>Are you sure you want to delete the quiz "{{ quiz.name }}" (ID: {{ quiz.quiz_id }}) and all associated images?</p>
+    <form method="post">
+        <input type="submit" value="Delete Quiz" onclick="return confirm('Are you sure you want to delete this quiz and all associated images?')">
+        <a href="{{ url_for('index') }}">Cancel</a>
+    </form>
+{% endblock %}
+
+
+edit_quiz.html
+:
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Quiz</title>
+    <style>
+        /* Add your CSS styles here */
+    </style>
+</head>
+<body>
+    <h1>Edit Quiz</h1>
+
+    {% if quiz %}
+        <p style="text-align: right;"><strong>Current Quiz ID:</strong> {{ quiz.quiz_id }}</p>
+    {% else %}
+        <p style="text-align: right;"><strong>No quiz selected</strong></p>
+    {% endif %}
+
+    <form method="post" action="{{ url_for('edit_quiz', quiz_id=quiz.quiz_id) }}">
+        <label for="quiz_name">Quiz Name:</label>
+        <input type="text" id="quiz_name" name="quiz_name" value="{{ quiz.name }}" required>
+        <input type="submit" value="Update Quiz">
+    </form>
+
+    <h2>Upload Single Image</h2>
+    <form method="post" enctype="multipart/form-data" action="{{ url_for('upload_images', quiz_id=quiz.quiz_id) }}">
+        <input type="file" name="image" accept="image/*" required>
+        <label for="category">Category:</label>
+        <input type="text" name="category">
+        <label for="score">Score:</label>
+        <input type="number" name="score">
+        <input type="submit" value="Upload Image">
+    </form>
+
+    <h2>Bulk Upload Images for Quiz {{ quiz.quiz_id }}</h2>
+    <form method="post" enctype="multipart/form-data" action="{{ url_for('bulk_upload_images', quiz_id=quiz.quiz_id) }}">
+        <label for="score"><strong>Default Score for this batch:</strong></label>
+        <input type="number" name="score" required>
+        <input type="file" name="images" accept="image/*" multiple required>
+        <input type="submit" value="Bulk Upload Images">
+    </form>
+
+    <h2>Image Gallery</h2>
+    {% for image in gallery %}
+        <div style="display: inline-block; margin: 10px;">
+            <img src="data:image/png;base64,{{ image.image_data }}" width="100">
+            <p>Category: {{ image.category }}</p>
+            <p>Score: {{ image.score }}</p>
+            <a href="{{ url_for('delete_image', image_id=image._id, quiz_id=quiz.quiz_id) }}">Delete</a>
+            <a href="{{ url_for('update_image', image_id=image._id, quiz_id=quiz.quiz_id) }}">Edit</a>
+        </div>
+    {% endfor %}
+
+    <h2>Result Image Gallery</h2>
+    {% for result_image in result_gallery %}
+        <div style="display: inline-block; margin: 10px;">
+            <img src="data:image/png;base64,{{ result_image.image_data }}" width="100">
+            <p>Score Range: {{ result_image.score_start }} - {{ result_image.score_end }}</p>
+            <p>Result Text: {{ result_image.result_text }}</p>
+        </div>
+    {% endfor %}
+</body>
+</html>
+
+
+index.html
+:
+{% extends 'base.html' %}
+<h1>{{ quiz.name }} (ID: {{ quiz.quiz_id }})</h1>
+{% block content %}
+    <h1>Quizzes</h1>
+    <ul>
+        {% for quiz in quizzes %}
+            <li><a href="{{ url_for('quiz_setup', quiz_id=quiz.quiz_id) }}">{{ quiz.name }} (ID: {{ quiz.quiz_id }})</a></li>
+        {% endfor %}
+    </ul>
+    <a href="{{ url_for('create_quiz') }}">Create New Quiz</a>
+{% endblock %}
+
+
+quiz_entry.html
+:
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>{{ quiz.name }} (ID: {{ quiz.quiz_id }}) Quiz Entry</h1>
+    <p>Current Score: {{ current_score }}</p>
+    <div class="quiz-images">
+        {% for image in images %}
+            <div class="quiz-image">
+                <a href="{{ url_for('quiz_entry', quiz_id=quiz.quiz_id, page=page, image_id=image._id) }}">
+                    <img src="data:image/png;base64,{{ image.image_data }}" alt="Quiz Image" style="max-width: 200px; max-height: 200px;">
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+    <button type="submit">Next</button>
+{% endblock %}
+
+{% block styles %}
+<style>
+    .quiz-images {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .quiz-image {
+        margin: 10px;
+    }
+
+    .quiz-image img {
+        max-width: 200px;
+        max-height: 200px;
+    }
+</style>
+{% endblock %}
+
+
+quiz_images.html
+:
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>{{ quiz.name }} (ID: {{ quiz.quiz_id }})</h1>
+    <div class="gallery">
+        {% for image in images %}
+            <div class="gallery-item">
+                <img src="data:image/png;base64,{{ image.image_data }}" alt="Quiz Image" style="max-width: 25%; max-height: 25%;">
+                <p>Category: {{ image.category }}, Score: {{ image.score }}</p>
+            </div>
+        {% endfor %}
+    </div>
+    <h2>Upload New Image</h2>
+    <form method="post" enctype="multipart/form-data" novalidate>
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.image.label }}<br>
+            {{ form.image() }}
+        </p>
+        <p>
+            {{ form.category.label }}<br>
+            {{ form.category(size=32) }}
+        </p>
+        <p>
+            {{ form.score.label }}<br>
+            {{ form.score(size=32) }}
+        </p>
+        <p>{{ form.submit() }}</p>
+    </form>
+    <a href="{{ url_for('bulk_image_upload', quiz_id=quiz.quiz_id) }}">Bulk Image Upload</a>
+    <a href="{{ url_for('quiz_entry', quiz_id=quiz.quiz_id) }}">Start Quiz</a>
+{% endblock %}
+
+{% block styles %}
+<style>
+    .gallery {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .gallery-item {
+        margin: 10px;
+        text-align: center;
+    }
+
+    .gallery-item img {
+        max-width: 25%;
+        max-height: 25%;
+    }
+</style>
+{% endblock %}
+
+
+quiz_result.html
+:
+{% extends 'base.html' %}
+<h1>{{ quiz.name }} (ID: {{ quiz.quiz_id }})</h1>
+{% block content %}
+    <h1>{{ quiz.name }} Result</h1>
+    <p>Your Score: {{ current_score }}</p>
+    {% if image_data %}
+        <img src="data:image/png;base64,{{ image_data }}" alt="Result Image">
+        <p>{{ result_text }}</p>
+    {% else %}
+        <p>{{ result_text }}</p>
+    {% endif %}
+{% endblock %}
+
+
+quiz_setup.html
+:
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Quiz Setup: {{ quiz.name }} (ID: {{ quiz.quiz_id }})</h1>
+    <ul>
+        <li><a href="{{ url_for('quiz_images', quiz_id=quiz.quiz_id) }}">Upload Images</a></li>
+        <li><a href="{{ url_for('result_image_upload', quiz_id=quiz.quiz_id) }}">Upload Result Images</a></li>
+        <li><a href="{{ url_for('result_images', quiz_id=quiz.quiz_id) }}">View Result Images Gallery</a></li>
+    </ul>
+    <a href="{{ url_for('quiz_entry', quiz_id=quiz.quiz_id) }}">Start Quiz</a>
+{% endblock %}
+
+
+result_images.html
+:
+{% extends 'base.html' %}
+<h1>{{ quiz.name }} (ID: {{ quiz.quiz_id }})</h1>
+{% block content %}
+    <h1>{{ quiz.name }} Result Images</h1>
+    <ul>
+        {% for result_image in result_images %}
+            <li>
+                <img src="data:image/png;base64,{{ result_image.image_data }}" alt="Result Image">
+                Category: {{ result_image.category }}, Score Range: {{ result_image.score_range }}, Result Text: {{ result_image.result_text }}
+            </li>
+        {% endfor %}
+    </ul>
+    <a href="{{ url_for('result_image_upload', quiz_id=quiz.quiz_id) }}">Upload New Result Image</a>
+{% endblock %}
+
+
+result_image_upload.html
+:
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Upload Result Image for {{ quiz.name }}</h1>
+    <form method="post" enctype="multipart/form-data" novalidate>
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.image.label }}<br>
+            {{ form.image() }}
+        </p>
+        <p>
+            {{ form.category.label }}<br>
+            {{ form.category(size=32) }}
+        </p>
+        <p>
+            {{ form.score_range.label }}<br>
+            Start: <input type="number" name="score_range_start" required>
+            End: <input type="number" name="score_range_end" required>
+        </p>
+        <p>
+            {{ form.result_text.label }}<br>
+            {{ form.result_text(size=32) }}
+        </p>
+        <p>{{ form.submit() }}</p>
+    </form>
+{% endblock %}
+
+

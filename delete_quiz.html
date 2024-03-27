@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Delete Quiz</h1>
+    <p>Are you sure you want to delete the quiz "{{ quiz.name }}" (ID: {{ quiz.quiz_id }}) and all associated images?</p>
+    <form method="post">
+        <input type="submit" value="Delete Quiz" onclick="return confirm('Are you sure you want to delete this quiz and all associated images?')">
+        <a href="{{ url_for('index') }}">Cancel</a>
+    </form>
+{% endblock %}

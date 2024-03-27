@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+<h1>{{ quiz.name }} (ID: {{ quiz.quiz_id }})</h1>
+{% block content %}
+    <h1>Quizzes</h1>
+    <ul>
+        {% for quiz in quizzes %}
+            <li><a href="{{ url_for('quiz_setup', quiz_id=quiz.quiz_id) }}">{{ quiz.name }} (ID: {{ quiz.quiz_id }})</a></li>
+        {% endfor %}
+    </ul>
+    <a href="{{ url_for('create_quiz') }}">Create New Quiz</a>
+{% endblock %}

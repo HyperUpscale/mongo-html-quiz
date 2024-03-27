@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Upload Result Image for {{ quiz.name }}</h1>
+    <form method="post" enctype="multipart/form-data" novalidate>
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.image.label }}<br>
+            {{ form.image() }}
+        </p>
+        <p>
+            {{ form.category.label }}<br>
+            {{ form.category(size=32) }}
+        </p>
+        <p>
+            {{ form.score_range.label }}<br>
+            Start: <input type="number" name="score_range_start" required>
+            End: <input type="number" name="score_range_end" required>
+        </p>
+        <p>
+            {{ form.result_text.label }}<br>
+            {{ form.result_text(size=32) }}
+        </p>
+        <p>{{ form.submit() }}</p>
+    </form>
+{% endblock %}
